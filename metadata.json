@@ -1,0 +1,5 @@
+{
+  "name": "Church Mass PPT Generator",
+  "description": "Assembles Sunday Mass PowerPoint presentations from a hymn list and an archive of hymn slide decks, preserving formatting and layout.",
+  "requestFramePermissions": []
+}

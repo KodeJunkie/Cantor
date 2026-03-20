@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --color-glass: rgba(255, 255, 255, 0.1);
+  --color-glass-dark: rgba(0, 0, 0, 0.2);
+}
+
+@layer base {
+  body {
+    @apply transition-colors duration-500;
+  }
+}
+
+.atmosphere-light {
+  background: linear-gradient(180deg, #93c5fd 0%, #dbeafe 40%, #f8fafc 100%);
+  min-height: 100vh;
+}
+
+.atmosphere-dark {
+  background: 
+    radial-gradient(circle at 50% 30%, #0c4a6e 0%, transparent 60%),
+    radial-gradient(circle at 10% 80%, #082f49 0%, transparent 50%),
+    #020617;
+  color: #f8fafc;
+}
+
+.glass-card {
+  @apply backdrop-blur-3xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.05)] bg-white/60;
+}
+
+.glass-card-dark {
+  @apply backdrop-blur-3xl border border-white/10 shadow-2xl bg-black/40;
+}
+
+.card-rounded {
+  border-radius: 3rem;
+}

@@ -78,6 +78,55 @@ function getDynamicFontSize(text: string, baseSize: number = 24): number {
   return Math.max(baseSize * 0.5, 10);
 }
 
+// Helper to normalize slide XML by merging text runs in paragraphs with placeholders
+function normalizeSlideXml(xmlStr: string): string {
+  try {
+    const doc = parseXml(xmlStr);
+    const paragraphs = Array.from(doc.getElementsByTagName("a:p"));
+    
+    let modified = false;
+    for (const p of paragraphs) {
+      const textRuns = Array.from(p.getElementsByTagName("a:t"));
+      if (textRuns.length <= 1) continue;
+      
+      const fullText = textRuns.map(t => t.textContent || "").join("");
+      
+      // Only normalize if it looks like it might contain a placeholder
+      if (fullText.includes("{{") && fullText.includes("}}")) {
+        const firstRun = p.getElementsByTagName("a:r")[0];
+        const rPr = firstRun ? firstRun.getElementsByTagName("a:rPr")[0] : null;
+        
+        const runs = Array.from(p.getElementsByTagName("a:r"));
+        runs.forEach(r => r.parentNode?.removeChild(r));
+        
+        const newRun = doc.createElement("a:r");
+        if (rPr) newRun.appendChild(rPr.cloneNode(true));
+        
+        const newText = doc.createElement("a:t");
+        newText.textContent = fullText;
+        newRun.appendChild(newText);
+        
+        const pPr = p.getElementsByTagName("a:pPr")[0];
+        if (pPr && pPr.parentNode === p) {
+          if (pPr.nextSibling) p.insertBefore(newRun, pPr.nextSibling);
+          else p.appendChild(newRun);
+        } else {
+          p.insertBefore(newRun, p.firstChild);
+        }
+        modified = true;
+      }
+    }
+    
+    if (modified) {
+      const serializer = new XMLSerializer();
+      return serializer.serializeToString(doc);
+    }
+  } catch (e) {
+    console.error("Failed to normalize slide XML", e);
+  }
+  return xmlStr;
+}
+
 // Helper to split text into chunks for slides
 function splitTextForSlides(text: string, maxChars: number = 500): string[] {
   if (text.length <= maxChars) return [text];
@@ -270,8 +319,10 @@ export async function mergePPTX(
 
     const target = relNode.getAttribute("Target") || "";
     const slidePath = `ppt/${target.replace(/^\//, "")}`;
-    const slideXmlStr = await masterZip.file(slidePath)?.async("string");
+    let slideXmlStr = await masterZip.file(slidePath)?.async("string");
     if (!slideXmlStr) continue;
+
+    slideXmlStr = normalizeSlideXml(slideXmlStr);
 
     const slideRelPath = `ppt/slides/_rels/${target.split("/").pop()}.rels`;
     const slideRelStr = await masterZip.file(slideRelPath)?.async("string");
@@ -365,29 +416,8 @@ export async function mergePPTX(
           }
         }
       } else {
-        log(`No hymns mapped to ${matchedSlot}, using placeholder slide.`, "info");
-        // Fallback: Use master slide if no hymn slides found
-        const newRelId = `rId${nextRIdNum++}`;
-        const newSldId = `${nextSldIdNum++}`;
-        const slideFileNum = nextSlideFileNum++;
-        const newFileName = `slides/slide${slideFileNum}.xml`;
-        masterZip.file(`ppt/${newFileName}`, slideXmlStr.replace(new RegExp(escapeRegExp(`{{${matchedSlot}}}`), "g"), matchedSlot));
-        
-        const newOverride = contentTypesDoc.createElement("Override");
-        newOverride.setAttribute("PartName", `/ppt/${newFileName}`);
-        newOverride.setAttribute("ContentType", "application/vnd.openxmlformats-officedocument.presentationml.slide+xml");
-        typesNode.appendChild(newOverride);
-
-        const newRel = relsDoc.createElement("Relationship");
-        newRel.setAttribute("Id", newRelId);
-        newRel.setAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide");
-        newRel.setAttribute("Target", newFileName);
-        relationships.appendChild(newRel);
-
-        const newSldIdNode = presDoc.createElement("p:sldId");
-        newSldIdNode.setAttribute("id", newSldId);
-        newSldIdNode.setAttribute("r:id", newRelId);
-        sldIdLst.appendChild(newSldIdNode);
+        log(`No hymns mapped to ${matchedSlot}, skipping placeholder slide.`, "info");
+        // Skip slide entirely if no hymn is mapped (e.g., Gloria during Lent)
       }
     } else {
       // Regular slide (Liturgy or other)

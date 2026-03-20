@@ -550,48 +550,64 @@ export default function App() {
                 </div>
 
                 {liturgyData && (
-                  <div className={`${darkMode ? "glass-card-dark" : "glass-card"} p-8 card-rounded space-y-6`}>
-                    <div>
-                      <h4 className={`text-[10px] font-black uppercase tracking-widest ${darkMode ? "text-stone-500" : "text-stone-400"} mb-2`}>Liturgy Title</h4>
-                      <p className={`text-xl font-serif italic ${darkMode ? "text-white" : "text-stone-900"}`}>{liturgyData.title}</p>
+                  <div className={`${darkMode ? "glass-card-dark" : "glass-card"} p-8 card-rounded space-y-8`}>
+                    <div className={`border-b pb-6 ${darkMode ? "border-white/10" : "border-stone-200/20"}`}>
+                      <h4 className={`text-xs font-black uppercase tracking-widest ${darkMode ? "text-stone-500" : "text-stone-400"} mb-2`}>Liturgy Details</h4>
+                      <p className={`text-3xl font-serif italic ${darkMode ? "text-white" : "text-stone-900"}`}>{liturgyData.title}</p>
+                      {liturgyData.date && (
+                        <p className={`text-sm font-medium mt-2 ${darkMode ? "text-stone-400" : "text-stone-500"}`}>{liturgyData.date}</p>
+                      )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-4">
-                        <h4 className={`text-[10px] font-black uppercase tracking-widest ${darkMode ? "text-stone-500" : "text-stone-400"}`}>Readings</h4>
-                        <div className="space-y-4">
-                          {[liturgyData.firstReading, liturgyData.secondReading, liturgyData.gospel].map((r, i) => (
-                            <div key={i} className={`p-4 ${darkMode ? "bg-white/5 border-white/5" : "bg-white/40 border-white/20"} rounded-3xl border`}>
-                              <p className={`text-xs font-bold ${darkMode ? "text-stone-200" : "text-stone-900"}`}>{r.title}</p>
-                              <p className={`text-[10px] ${darkMode ? "text-stone-500" : "text-stone-500"} italic mb-2`}>{r.reference}</p>
-                              <p className={`text-[11px] ${darkMode ? "text-stone-400" : "text-stone-600"} line-clamp-3`}>{r.text}</p>
+                    <div className="space-y-6">
+                      <h4 className={`text-xs font-black uppercase tracking-widest ${darkMode ? "text-stone-500" : "text-stone-400"}`}>Readings</h4>
+                      <div className="grid grid-cols-1 gap-4">
+                        {[liturgyData.firstReading, liturgyData.secondReading, liturgyData.gospel].map((r, i) => (
+                          <div key={i} className={`p-5 ${darkMode ? "bg-white/5 border-white/5" : "bg-white/60 border-white/40 shadow-sm"} rounded-3xl border flex flex-col md:flex-row gap-4`}>
+                            <div className="md:w-1/3 shrink-0">
+                              <p className={`text-sm font-bold ${darkMode ? "text-stone-200" : "text-stone-900"}`}>{r.title}</p>
+                              <p className={`text-xs ${darkMode ? "text-stone-400" : "text-stone-500"} italic mt-1`}>{r.reference}</p>
                             </div>
-                          ))}
-                        </div>
+                            <div className="md:w-2/3">
+                              <div className={`text-sm ${darkMode ? "text-stone-300" : "text-stone-700"} max-h-32 overflow-y-auto pr-2 custom-scrollbar leading-relaxed`}>
+                                {r.text}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
+                    </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
-                        <h4 className={`text-[10px] font-black uppercase tracking-widest ${darkMode ? "text-stone-500" : "text-stone-400"}`}>Psalm & Response</h4>
-                        <div className={`p-4 ${darkMode ? "bg-amber-900/20 border-amber-900/30" : "bg-amber-50/30 border-amber-100/50"} rounded-3xl border`}>
-                          <p className={`text-xs font-bold ${darkMode ? "text-amber-400" : "text-amber-900"} mb-1`}>Response</p>
-                          <p className={`text-sm font-serif italic ${darkMode ? "text-amber-200" : "text-amber-800"} mb-4`}>{liturgyData.psalm.response}</p>
-                          <p className={`text-xs font-bold ${darkMode ? "text-amber-400" : "text-amber-900"} mb-2`}>Verses</p>
-                          <div className="space-y-2">
+                        <h4 className={`text-xs font-black uppercase tracking-widest ${darkMode ? "text-stone-500" : "text-stone-400"}`}>Psalm & Response</h4>
+                        <div className={`p-5 h-full ${darkMode ? "bg-amber-900/20 border-amber-900/30" : "bg-amber-50/50 border-amber-100/50 shadow-sm"} rounded-3xl border`}>
+                          <p className={`text-sm font-bold ${darkMode ? "text-amber-400" : "text-amber-900"} mb-2`}>Response</p>
+                          <p className={`text-lg font-serif italic ${darkMode ? "text-amber-200" : "text-amber-800"} mb-6 leading-snug`}>{liturgyData.psalm.response}</p>
+                          <p className={`text-sm font-bold ${darkMode ? "text-amber-400" : "text-amber-900"} mb-3`}>Verses</p>
+                          <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                             {liturgyData.psalm.verses.map((v, i) => (
-                              <p key={i} className={`text-[11px] ${darkMode ? "text-amber-300 bg-white/5 border-white/5" : "text-amber-700 bg-white/40 border-amber-100/30"} p-2 rounded-xl border line-clamp-2`}>
-                                <span className="font-bold mr-2">{i+1}.</span>
+                              <p key={i} className={`text-xs leading-relaxed ${darkMode ? "text-amber-300 bg-white/5 border-white/5" : "text-amber-800 bg-white/60 border-amber-200/30"} p-3 rounded-2xl border`}>
+                                <span className="font-bold mr-2 opacity-50">{i+1}.</span>
                                 {v}
                               </p>
                             ))}
                           </div>
                         </div>
-                        <div className={`p-4 ${darkMode ? "bg-emerald-900/20 border-emerald-900/30" : "bg-emerald-50/30 border-emerald-100/50"} rounded-3xl border`}>
-                          <p className={`text-xs font-bold ${darkMode ? "text-emerald-400" : "text-emerald-900"} mb-1`}>Faithful Response</p>
-                          <p className={`text-sm italic ${darkMode ? "text-emerald-200" : "text-emerald-800"} mb-4`}>{liturgyData.prayerOfTheFaithfulResponse}</p>
+                      </div>
+                      <div className="space-y-4">
+                        <h4 className={`text-xs font-black uppercase tracking-widest ${darkMode ? "text-stone-500" : "text-stone-400"}`}>Prayers</h4>
+                        <div className={`p-5 h-full ${darkMode ? "bg-emerald-900/20 border-emerald-900/30" : "bg-emerald-50/50 border-emerald-100/50 shadow-sm"} rounded-3xl border flex flex-col gap-6`}>
+                          <div>
+                            <p className={`text-sm font-bold ${darkMode ? "text-emerald-400" : "text-emerald-900"} mb-2`}>Faithful Response</p>
+                            <p className={`text-lg italic ${darkMode ? "text-emerald-200" : "text-emerald-800"} leading-snug`}>{liturgyData.prayerOfTheFaithfulResponse}</p>
+                          </div>
                           {(liturgyData.prayerTitle || liturgyData.prayerText) && (
-                            <div className={`pt-4 border-t ${darkMode ? "border-white/10" : "border-emerald-100/30"}`}>
-                              <p className={`text-xs font-bold ${darkMode ? "text-emerald-400" : "text-emerald-900"} mb-1`}>{liturgyData.prayerTitle || "Prayer"}</p>
-                              <p className={`text-[11px] ${darkMode ? "text-emerald-300" : "text-emerald-700"} line-clamp-3`}>{liturgyData.prayerText}</p>
+                            <div className={`pt-6 border-t ${darkMode ? "border-white/10" : "border-emerald-200/30"} flex-1`}>
+                              <p className={`text-sm font-bold ${darkMode ? "text-emerald-400" : "text-emerald-900"} mb-2`}>{liturgyData.prayerTitle || "Prayer"}</p>
+                              <div className={`text-sm leading-relaxed ${darkMode ? "text-emerald-300" : "text-emerald-800"} max-h-32 overflow-y-auto pr-2 custom-scrollbar`}>
+                                {liturgyData.prayerText}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -601,12 +617,21 @@ export default function App() {
                 )}
 
                 <div className={`${darkMode ? "glass-card-dark" : "glass-card"} p-8 card-rounded`}>
-                  <h4 className={`text-[10px] font-black uppercase tracking-widest ${darkMode ? "text-stone-500" : "text-stone-400"} mb-4`}>Hymn Slots</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <h4 className={`text-xs font-black uppercase tracking-widest ${darkMode ? "text-stone-500" : "text-stone-400"} mb-6`}>Hymn Slots & Lyrics</h4>
+                  <div className="grid grid-cols-1 gap-4">
                     {parsedSlots.map((s, i) => (
-                      <div key={i} className={`flex items-center justify-between p-3 ${darkMode ? "bg-white/5 border-white/5" : "bg-white/40 border-white/20"} rounded-2xl border`}>
-                        <span className={`text-[10px] font-bold ${darkMode ? "text-stone-500" : "text-stone-400"} uppercase`}>{s.slot}</span>
-                        <span className={`text-xs font-bold ${darkMode ? "text-stone-200" : "text-stone-700"}`}>{s.hymnName}</span>
+                      <div key={i} className={`flex flex-col p-4 ${darkMode ? "bg-white/5 border-white/5" : "bg-white/60 border-white/40 shadow-sm"} rounded-2xl border`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-xs font-bold ${darkMode ? "text-stone-400" : "text-stone-500"} uppercase tracking-wider`}>{s.slot}</span>
+                          <span className={`text-sm font-bold ${darkMode ? "text-stone-100" : "text-stone-800"}`}>{s.hymnName}</span>
+                        </div>
+                        {(s.lyricsSnippet || s.fullLyrics) && (
+                          <div className={`mt-2 pt-3 border-t ${darkMode ? "border-white/10" : "border-stone-200/50"}`}>
+                            <p className={`text-xs italic ${darkMode ? "text-stone-400" : "text-stone-600"} line-clamp-2`}>
+                              "{s.lyricsSnippet || s.fullLyrics?.substring(0, 100)}..."
+                            </p>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

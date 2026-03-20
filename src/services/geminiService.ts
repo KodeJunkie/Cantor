@@ -12,6 +12,7 @@ export interface HymnSlot {
 
 export interface LiturgyData {
   title: string;
+  date?: string;
   firstReading: { title: string; reference: string; text: string };
   secondReading: { title: string; reference: string; text: string };
   gospel: { title: string; reference: string; text: string };
@@ -48,6 +49,8 @@ export async function parseHymnList(text: string): Promise<HymnSlot[]> {
     3. Return a JSON array of objects with 'slot', 'hymnName', 'fullLyrics', and 'isAlternative' properties.
     4. Include a 'lyricsSnippet' (first few words) as well.
     5. IMPORTANT: For the 'Entrance' slot, if both a primary and an 'Alt.' hymn are present, ensure the primary one (e.g., 'Rise up and Praise Him') is listed first and NOT marked as alternative.
+    6. NEVER include instructions like "Please take hymn" or "Please take hymn book" in the fullLyrics. Only include the actual lyrics of the song.
+    7. Map the hymns to the EXACT slot names provided above, even if the user's list uses slightly different names (e.g., map "HOLY" to "Sanctus / Holy Hymn", map "PROCLAMATION" to "Proclmation Hymn", map "LAMB OF GOD" to "Lamb Of God / LOG Hymn", map "OFFERTORY" to "Offertory hymn", map "THANKSGIVING" to "Communion / Communion 2 Hymn" or similar if needed).
 
     Hymn List:
     ${text}
@@ -91,16 +94,18 @@ export async function parseLiturgySheet(base64Pdf: string): Promise<LiturgyData>
   const prompt = `
     Extract the following liturgical elements from this Sunday Liturgy sheet:
     1. Liturgy Sheet Title: The main title of the sheet (e.g., 4th Sunday of Lent). DO NOT add extra info like "- Year A" or "- Year B" if it's not the primary title.
-    2. First Reading: Title (e.g., A reading from the first Book of Samuel), Reference (MUST include book name, e.g., 1 Samuel 16:1,5-7,10-13), and the full text.
-    3. Second Reading: Title, Reference (MUST include book name), and the full text.
-    4. Gospel: Title, Reference (MUST include book name), and the full text.
-    5. Responsorial Psalm: The Response text and each Verse text separately (up to 5 verses).
-    6. Gospel Antiphon: The text of the Gospel Antiphon.
-    7. Prayer of the Faithful Response: The response text for the prayers.
+    2. Date: The date of the liturgy if present (e.g., 22nd March 2026 or 22-03-2026).
+    3. First Reading: Title (e.g., A reading from the first Book of Samuel), Reference (MUST include book name, e.g., 1 Samuel 16:1,5-7,10-13), and the full text.
+    4. Second Reading: Title, Reference (MUST include book name), and the full text.
+    5. Gospel: Title, Reference (MUST include book name), and the full text.
+    6. Responsorial Psalm: The Response text and each Verse text separately (up to 5 verses).
+    7. Gospel Antiphon: The text of the Gospel Antiphon.
+    8. Prayer of the Faithful Response: The response text for the prayers.
 
     Return the data in the following JSON format:
     {
       "title": "...",
+      "date": "...",
       "firstReading": { "title": "...", "reference": "...", "text": "..." },
       "secondReading": { "title": "...", "reference": "...", "text": "..." },
       "gospel": { "title": "...", "reference": "...", "text": "..." },
